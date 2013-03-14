@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+     <title>Morse Code</title>
+     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+     <link rel="stylesheet" type="text/css" href="styles.css"/>
+     <script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+     <script type="text/javascript" src="script.js"></script>
+
+</head>
+<body>
+
+<div id="container" class="center">
+     <div id="guide" class="clear box_glow1">
+          <h3 class="center-text">Morse Code</h3>
+          <table id="guide" class="center center-text"><tbody><tr><th>Code</th><th>Data</th><th>Code</th><th>Data</th><th>Code</th><th>Data</th><th>Code</th><th>Data</th><th>Code</th><th>Data</th><th>Code</th><th>Data</th><th>Code</th><th>Data</th><th>Code</th><th>Data</th><th>Code</th><th>Data</th></tr><tr><td>0</td><td>E</td><td>1</td><td>T</td><td>10</td><td>N</td><td>11</td><td>M</td><td>100</td><td>D</td><td>101</td><td>K</td><td>110</td><td>G</td><td>111</td><td>O</td><td>00000</td><td>5</td></tr><tr><td>1000</td><td>B</td><td>1001</td><td>X</td><td>1010</td><td>C</td><td>1011</td><td>Y</td><td>1100</td><td>Z</td><td>1101</td><td>Q</td><td>10000</td><td>6</td><td>11000</td><td>7</td><td>00001</td><td>4</td></tr><tr><td>11100</td><td>8</td><td>11110</td><td>9</td><td>11111</td><td>0</td><td>01</td><td>A</td><td>0010</td><td>F</td><td>0000</td><td>H</td><td>00</td><td>I</td><td>0111</td><td>J</td><td>00011</td><td>3</td></tr><tr><td>0100</td><td>L</td><td>0110</td><td>P</td><td>010</td><td>R</td><td>000</td><td>S</td><td>001</td><td>U</td><td>0001</td><td>V</td><td>011</td><td>W</td><td>01111</td><td>1</td><td>00111</td><td>2</td></tr><tr></tr></tbody></table>
+     </div>
+
+     <div class="clear">
+          <div id="transmitter" class="left half box_glow1">
+               <div class="left center-text">Current Code: <strong><span id="stream">none</span></strong></div>
+               <div class="right center-text">Possible Data: <span id="tdata">none</span></div>
+               <div class="clear center-text">(Click inside the box to generate a morse code)</div>
+               <div id="element" class="clear center"></div>
+               <div class="clear center-text"><small>(Wait half a second to start sending the code)</small></div>
+               <p style="margin: 0;padding: 0;" class="clear center-text">0: Quickly release the left button<br />1: Release after a certain delay</p>
+
+               <h3 style="margin: 0;padding: 0;" >Data sent: <span id="sent_toggle"style="color:gray;font-size: 16px;">(show)</span></h3>
+               <div id="sent">
+                    <ul id="codes_sent">Empty</ul>
+                    <input type="button" id="clear_list" value="Clear"/>
+               </div>
+          </div>
+          <div id="receiver" class="left half box_glow1">Receiver <br />(Not yet implemented b*tch)</div>
+     </div>
+     <div id="footer" class="clear box_glow1">footer</div>
+</div>
+
+</body>
+</html>
