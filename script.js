@@ -51,7 +51,7 @@ $(document).ready(function() {
           };
           $CORRECT_ENCODED_WORD = {
                "0001" : "A",
-               "0010000" : "B",
+               "1110000" : "B", /* "0010000"*/
                "0010010" : "C",
                "001000" : "D",
                "000" : "E",
@@ -61,7 +61,7 @@ $(document).ready(function() {
                "0000" : "I",
                "0001111" : "J",
                "101101" : "K",
-               "1000100" : "L",
+               "1001100" : "L", //"1000100"
                "00101" : "M",
                "10100" : "N",
                "001011" : "O",
@@ -69,7 +69,7 @@ $(document).ready(function() {
                "1010101" : "Q",
                "100010" : "R",
                "000000" : "S",
-               "001" : "T",
+               "111" : "T", //"001"
                "0100011" : "U",
                "1101001" : "V",
                "110011" : "W",
@@ -105,7 +105,7 @@ $(document).ready(function() {
                          received.html("");
                     }
                     errorBit = getError(data["word"]); 
-                    error = (errorBit == -1 ? ("<span style='color:red;'> [Error in Bit: "+errorBit+"]</span>") : "");
+                    error = (errorBit != 0 ? ("<span style='color:red;'> [Error in Bit: "+errorBit+"]</span>") : "");
                     received.append(data["name"]+ ": "+data["word"]+ error+"<br />");       
                });
                socket.on("updateUsers", function(data){
@@ -161,7 +161,8 @@ $(document).ready(function() {
                var code_sent = document.getElementById('codes_sent');
                var output = "";
                for(var i in $CODES){
-                    output += "<li>[ Input: " + $CODES[i] + " ] - [ Value: " + ($MORSE_CODE[$CODES[i]] ? $MORSE_CODE[$CODES[i]] : "invalid") + " ] - [ Encoded: " + encode($CODES[i]) + " ] - [ CHK: " + decode(encode($CODES[i])) + " ]</li>";
+                    //for testing output += "<li>[ Input: " + $CODES[i] + " ] - [ Value: " + ($MORSE_CODE[$CODES[i]] ? $MORSE_CODE[$CODES[i]] : "invalid") + " ] - [ Encoded: " + encode($CODES[i]) + " ] - [ CHK: " + decode(encode($CODES[i])) + " ]</li>";
+                    output += "<li>[ Input: " + $CODES[i] + " ] - [ Value: " + ($MORSE_CODE[$CODES[i]] ? $MORSE_CODE[$CODES[i]] : "invalid") + " ] - [ Encoded: " + encode($CODES[i]) + " ]</li>";
                }
                code_sent.innerHTML = output;
                data = "";
@@ -190,26 +191,33 @@ $(document).ready(function() {
                var pValues = new Array(r);
                var t = 0;
 
-               //Get Parity Values
+               for(var i = 0; i < (data.length + r); i++){
+                    if(isBase2(i+1)){
+                         encodedData += "P";
+                    }else{
+                         encodedData += (""+data[dataIndex++]);
+                    }
+               }
+
+               /////////////////////////////////////////  GET/GENERATE PARITY BITS ///////////////////////////////////////
                for(var p = 0; p < r; p++){
                     pValues[p] = 0;
-                    for(var d = 0; d < data.length; d++){
+                    for(var d = 0; d < encodedData.length; d++){
                          t = Math.pow(2, p); 
-                         bit = parseInt(data[d]);
-                         if(((d+1) != t) && (d > t)){
+                         bit = parseInt(encodedData[d]);
+                         if( ((d+1) != t) && ( (d+1) & t) ){
                               pValues[p] = pValues[p] ^ bit;
                          } 
                     }
                }
                
+               pIndex = 0;
                //Generate new word
                for(var i = 0; i < (data.length + r);i++){
                     bit = parseInt(data[i]);
                     if(isBase2(i+1)){
-                         encodedData += (""+pValues[pIndex++]);
-                    }else{
-                         encodedData += (""+data[dataIndex++]);
-                    }
+                         encodedData = setCharAt(encodedData, i, pValues[pIndex++]);
+                    } 
                }
                //create an error
                $ERROR_AT = parseInt($("#error-at").val());
@@ -219,6 +227,8 @@ $(document).ready(function() {
                }
                return encodedData;
           }
+
+          //this is for sender only. to check if the encoded data is correct
           function decode(data){
                var decodedData = $CORRECT_ENCODED_WORD[data]; //temp
 
@@ -227,7 +237,29 @@ $(document).ready(function() {
 
           function getError(data){
                var e = 0;
-               //check there is an error
+               var bit = 0;
+               var r = getR(data.length);
+               var pValues = new Array(r);
+               var t = 0;
+
+               console.log("get error");
+               ////////////////////////////////////////////  CHECK PARITY BITS  ///////////////////////////////////////////
+               for(var p = 0; p < r; p++){
+                    pValues[p] = 0;
+                    for(var d = 0; d < data.length; d++){
+                         t = Math.pow(2, p); 
+                         bit = parseInt(data[d]);
+                         if((d+1) & t){
+                              console.log("P"+ t +": " + pValues[p] + " xor "+ bit + "[@bit: "+(d+1)+"]");//temp
+                              pValues[p] = pValues[p] ^ bit;
+                         } 
+                    }
+                    if(pValues[p] == 1){e += t; console.log("p: "+ p + ", e: "+ e + ", t:" + t);}
+                    console.log("---");//temp
+               }
+               
+               console.log("--------------------------------------");//temp
+               console.log(pValues);//temp
                return e;
           }
 
