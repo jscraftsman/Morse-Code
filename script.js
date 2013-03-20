@@ -2,6 +2,7 @@ $(document).ready(function() {
           $DELAY_BEFORE_TRANSMIT = 500;
           $DELAY_FOR_DASH = 150;
           $CODES = [];
+          $ERROR_AT = parseInt($("#error-at").val());
 
           var element = document.getElementById('element'),
               stream = document.getElementById('stream'),
@@ -91,6 +92,8 @@ $(document).ready(function() {
           var name = "";
           var socket = io.connect('http://localhost:3000');
           var received = $("#r-data");
+          var error = "";
+          var errorBit = 0;
           socket.on("connect", function(){
                do{
                     name = prompt("Enter name: ");
@@ -101,9 +104,10 @@ $(document).ready(function() {
                     if(received.text()=="Empty"){
                          received.html("");
                     }
-                    received.append(data["name"]+ ": "+data["word"]+"<br />");       
+                    errorBit = getError(data["word"]); 
+                    error = (errorBit == -1 ? ("<span style='color:red;'> [Error in Bit: "+errorBit+"]</span>") : "");
+                    received.append(data["name"]+ ": "+data["word"]+ error+"<br />");       
                });
-     
                socket.on("updateUsers", function(data){
                     var name = "";
                     for(i in data){
@@ -207,6 +211,12 @@ $(document).ready(function() {
                          encodedData += (""+data[dataIndex++]);
                     }
                }
+               //create an error
+               $ERROR_AT = parseInt($("#error-at").val());
+               if(($ERROR_AT != 0)){
+                    var eBit = parseInt(encodedData.charAt($ERROR_AT-1));
+                    encodedData = setCharAt(encodedData, ($ERROR_AT-1), eBit == 0 ? '1' : '0');      
+               }
                return encodedData;
           }
           function decode(data){
@@ -215,10 +225,19 @@ $(document).ready(function() {
                return decodedData;
           }
 
+          function getError(data){
+               var e = 0;
+               //check there is an error
+               return e;
+          }
 
+          function setCharAt(str,index,chr) {
+               if(index > str.length-1) return str;
+               return str.substr(0,index) + chr + str.substr(index+1);
+          }
           function prepareForSend(){
                if(data != ""){
-                    socket.emit("sentFromClient", {data: data});
+                    socket.emit("sentFromClient", {data: encode(data)});
                     $CODES.push(data); //for log
                     setDataLog();
                }
@@ -240,7 +259,6 @@ $(document).ready(function() {
           }
           function stopCount(){ time = 0; clearTimeout(timer); }
           function getMorseCodeData(){ return ($MORSE_CODE[data] ? $MORSE_CODE[data] : "none"); }
-
 
           
 });
