@@ -43,6 +43,46 @@ $(document).ready(function() {
           };
 
 
+          $CORRECT_ENCODED_WORD = {
+               "0001" : "A",
+               "0010000" : "B",
+               "0010010" : "C",
+               "001000" : "D",
+               "000" : "E",
+               "0000010" : "F",
+               "001010" : "G",
+               "0000000" : "H",
+               "0000" : "I",
+               "0001111" : "J",
+               "101101" : "K",
+               "1000100" : "L",
+               "00101" : "M",
+               "10100" : "N",
+               "001011" : "O",
+               "1100110" : "P",
+               "1010101" : "Q",
+               "100010" : "R",
+               "000000" : "S",
+               "001" : "T",
+               "0100011" : "U",
+               "1101001" : "V",
+               "110011" : "W",
+               "0010001" : "X",
+               "0110011" : "Y",
+               "0010100" : "Z",
+               "100111111" : "1", 
+               "000001111" : "2",
+               "010100111" : "3",
+               "100000011" : "4",
+               "000000000" : "5",
+               "111000000" : "6",
+               "011110000" : "7",
+               "001011000" : "8",
+               "111111100" : "9",
+               "011111111" : "0"
+          };
+
+
           var element = document.getElementById('element'),
               stream = document.getElementById('stream'),
               tdata = document.getElementById('tdata'),
@@ -50,12 +90,10 @@ $(document).ready(function() {
               data = "",  
               time = 0, timer;
 
-          $("#sent").hide();
           $("#sent_toggle").click(function(){
-              $("#sent_toggle").text($("#codes_sent").is(":visible") ? "(show)" : "(hide)" );
-               $("#sent").toggle();
+                    $("#sent_toggle").text($("#codes_sent").is(":visible") ? "(show)" : "(hide)" );
+                    $("#sent").toggle();
           });
-
           $("#clear_list").click(function(){
                if($("#codes_sent li").length > 0){
                     $CODES = [];
@@ -65,19 +103,20 @@ $(document).ready(function() {
                     alert("List is empty already!");
                }
           });
-          
-          $("#element").mouseover(function() {
-               $("#element").addClass("glow");
-          }).mouseout(function(){
-               $("#element").removeClass("glow");
+          $("#clear_r_list").click(function(){
+               //clear data
+               $("#r-data").html("Empty");
           });
           
-          element.onmousedown = function () {
+          $("#element").mouseover(function() { $("#element").addClass("glow"); }).mouseout(function(){ $("#element").removeClass("glow"); }); 
+          element.onmousedown = function () { handleMouseDown(); };
+          element.onmouseup = function () { handleMouseUp(); };
+          
+          function handleMouseDown(){
                start = +new Date();
                stopCount();
-          };
-
-          element.onmouseup = function () {
+          }
+          function handleMouseUp(){
                end = +new Date();
 
                diff = end - start;
@@ -88,27 +127,92 @@ $(document).ready(function() {
                tdata.innerHTML = getMorseCodeData();
 
                startCount();
-          };
+          }
 
-          function setList(){
+          function setDataLog(){
                var code_sent = document.getElementById('codes_sent');
                var output = "";
                for(var i in $CODES){
-                    output += "<li>" + $CODES[i] + " - " + ($MORSE_CODE[$CODES[i]] ? $MORSE_CODE[$CODES[i]] : "invalid code") + "</li>";
+                    output += "<li>[ Input: " + $CODES[i] + " ] - [ Value: " + ($MORSE_CODE[$CODES[i]] ? $MORSE_CODE[$CODES[i]] : "invalid") + " ] - [ Encoded: " + encode($CODES[i]) + " ] - [ CHK: " + decode(encode($CODES[i])) + " ]</li>";
                }
                code_sent.innerHTML = output;
                data = "";
           }
 
-          function SendData(){
-               $CODES.push(data);
-               setList();
+          function getR(len){
+               var r = 0;
+               var left, right;
+               do{
+                    left = Math.pow(2, r) -r;
+                    right = len + 1;
+                    r++;
+               }while(left < right);
+               return (r-1);
+          }
+          function isBase2(n){
+               return ((n & (n-1)) == 0);
+          }
+     
+          function encode(data){
+               var encodedData = "";
+               var dataIndex = 0;
+               var pIndex = 0;
+               var bit = 0;
+               var r = getR(data.length);
+               var pValues = new Array(r);
+               var t = 0;
+
+               //Get Parity Values
+               for(var p = 0; p < r; p++){
+                    pValues[p] = 0;
+                    for(var d = 0; d < data.length; d++){
+                         t = Math.pow(2, p); 
+                         bit = parseInt(data[d]);
+                         if(((d+1) != t) && (d > t)){
+                              pValues[p] = pValues[p] ^ bit;
+                         } 
+                    }
+               }
+               
+               //Generate new word
+               for(var i = 0; i < (data.length + r);i++){
+                    bit = parseInt(data[i]);
+                    if(isBase2(i+1)){
+                         encodedData += (""+pValues[pIndex++]);
+                    }else{
+                         encodedData += (""+data[dataIndex++]);
+                    }
+               }
+               return encodedData;
+          }
+          function decode(data){
+               var decodedData = $CORRECT_ENCODED_WORD[data]; //temp
+
+               return decodedData;
+          }
+
+
+          function prepareForSend(){
+               if(data != ""){
+                    $CODES.push(data); //for log
+                    setDataLog();
+               }
                data = "";
                stream.innerHTML = "none";
                tdata.innerHTML = "none";
           }
 
-          function startCount(){ timer=window.setTimeout(function(){ time += 50; if(time > $DELAY_BEFORE_TRANSMIT){ stopCount(); SendData(); }else{ startCount(); } },50); }
+          function startCount(){ 
+               timer = window.setTimeout(function(){ 
+                         time += 50;
+                         if(time > $DELAY_BEFORE_TRANSMIT){
+                              stopCount();
+                              prepareForSend();
+                         }else{
+                              startCount();
+                         }
+               },50); 
+          }
           function stopCount(){ time = 0; clearTimeout(timer); }
           function getMorseCodeData(){ return ($MORSE_CODE[data] ? $MORSE_CODE[data] : "none"); }
 

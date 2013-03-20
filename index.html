@@ -27,13 +27,17 @@
                <div class="clear center-text"><small>(Wait half a second to start sending the code)</small></div>
                <p style="margin: 0;padding: 0;" class="clear center-text">0: Quickly release the left button<br />1: Release after a certain delay</p>
 
-               <h3 style="margin: 0;padding: 0;" >Data sent: <span id="sent_toggle"style="color:gray;font-size: 16px;">(show)</span></h3>
+               <h3 style="margin: 0;padding: 0;" >Data log: <span id="sent_toggle"style="color:gray;font-size: 16px;">(show)</span></h3>
                <div id="sent">
                     <ul id="codes_sent">Empty</ul>
                     <input type="button" id="clear_list" value="Clear"/>
                </div>
           </div>
-          <div id="receiver" class="left half box_glow1">Receiver <br />(Not yet implemented b*tch)</div>
+          <div id="receiver" class="left half box_glow1">
+               <h4 class="center-text">Received Data: </h4>
+               <div id="r-data">Empty</div>
+               <input type="button" id="clear_r_list" value="Clear"/>
+          </div>
      </div>
      <div id="footer" class="clear box_glow1">footer</div>
 </div>
