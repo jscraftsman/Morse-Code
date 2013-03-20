@@ -3,6 +3,13 @@ $(document).ready(function() {
           $DELAY_FOR_DASH = 150;
           $CODES = [];
 
+          var element = document.getElementById('element'),
+              stream = document.getElementById('stream'),
+              tdata = document.getElementById('tdata'),
+              start, end, diff,
+              data = "",  
+              time = 0, timer;
+
           $MORSE_CODE = {
           "01" : "A",
           "1000" : "B",
@@ -41,8 +48,6 @@ $(document).ready(function() {
           "11110" : "9",
           "11111" : "0"
           };
-
-
           $CORRECT_ENCODED_WORD = {
                "0001" : "A",
                "0010000" : "B",
@@ -82,13 +87,32 @@ $(document).ready(function() {
                "011111111" : "0"
           };
 
-
-          var element = document.getElementById('element'),
-              stream = document.getElementById('stream'),
-              tdata = document.getElementById('tdata'),
-              start, end, diff,
-              data = "",  
-              time = 0, timer;
+     /* socket io functions */
+          var name = "";
+          var socket = io.connect('http://localhost:3000');
+          var received = $("#r-data");
+          socket.on("connect", function(){
+               do{
+                    name = prompt("Enter name: ");
+               }while(name==null);
+               socket.emit("addUser", {name : name});
+               
+               socket.on("sentFromServer", function(data){
+                    if(received.text()=="Empty"){
+                         received.html("");
+                    }
+                    received.append(data["name"]+ ": "+data["word"]+"<br />");       
+               });
+     
+               socket.on("updateUsers", function(data){
+                    var name = "";
+                    for(i in data){
+                         name += (i > 0 ? ", " : "");
+                         name += data[i];
+                    }
+                    $("#users").text(name);
+               });
+          });
 
           $("#sent_toggle").click(function(){
                     $("#sent_toggle").text($("#codes_sent").is(":visible") ? "(show)" : "(hide)" );
@@ -194,6 +218,7 @@ $(document).ready(function() {
 
           function prepareForSend(){
                if(data != ""){
+                    socket.emit("sentFromClient", {data: data});
                     $CODES.push(data); //for log
                     setDataLog();
                }
@@ -216,4 +241,6 @@ $(document).ready(function() {
           function stopCount(){ time = 0; clearTimeout(timer); }
           function getMorseCodeData(){ return ($MORSE_CODE[data] ? $MORSE_CODE[data] : "none"); }
 
+
+          
 });
