@@ -90,7 +90,8 @@ $(document).ready(function() {
 
      /* socket io functions */
           var name = "";
-          var socket = io.connect('http://localhost:3000');
+          var address = location.href;
+          var socket = io.connect(address);
           var received = $("#r-data");
           var error = "";
           var errorBit = 0;
