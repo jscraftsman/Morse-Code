@@ -49,44 +49,6 @@ $(document).ready(function() {
           "11110" : "9",
           "11111" : "0"
           };
-          $CORRECT_ENCODED_WORD = {
-               "0001" : "A",
-               "1110000" : "B", /* "0010000"*/
-               "0010010" : "C",
-               "001000" : "D",
-               "000" : "E",
-               "0000010" : "F",
-               "001010" : "G",
-               "0000000" : "H",
-               "0000" : "I",
-               "0001111" : "J",
-               "101101" : "K",
-               "1001100" : "L", //"1000100"
-               "00101" : "M",
-               "10100" : "N",
-               "001011" : "O",
-               "1100110" : "P",
-               "1010101" : "Q",
-               "100010" : "R",
-               "000000" : "S",
-               "111" : "T", //"001"
-               "0100011" : "U",
-               "1101001" : "V",
-               "110011" : "W",
-               "0010001" : "X",
-               "0110011" : "Y",
-               "0010100" : "Z",
-               "100111111" : "1", 
-               "000001111" : "2",
-               "010100111" : "3",
-               "100000011" : "4",
-               "000000000" : "5",
-               "111000000" : "6",
-               "011110000" : "7",
-               "001011000" : "8",
-               "111111100" : "9",
-               "011111111" : "0"
-          };
 
      /* socket io functions */
           var name = "";
@@ -162,8 +124,8 @@ $(document).ready(function() {
                var code_sent = document.getElementById('codes_sent');
                var output = "";
                for(var i in $CODES){
-                    //for testing output += "<li>[ Input: " + $CODES[i] + " ] - [ Value: " + ($MORSE_CODE[$CODES[i]] ? $MORSE_CODE[$CODES[i]] : "invalid") + " ] - [ Encoded: " + encode($CODES[i]) + " ] - [ CHK: " + decode(encode($CODES[i])) + " ]</li>";
-                    output += "<li>[ Input: " + $CODES[i] + " ] - [ Value: " + ($MORSE_CODE[$CODES[i]] ? $MORSE_CODE[$CODES[i]] : "invalid") + " ] - [ Encoded: " + encode($CODES[i]) + " ]</li>";
+                    output += "<li>[ Input: " + $CODES[i] + " ] - [ Value: " + ($MORSE_CODE[$CODES[i]] ? $MORSE_CODE[$CODES[i]] : "invalid") + " ] - [ Encoded: " + encode($CODES[i]) + " ] - [ CHK: " + $MORSE_CODE[decode(encode($CODES[i]))] + " ]</li>";
+                    //output += "<li>[ Input: " + $CODES[i] + " ] - [ Value: " + ($MORSE_CODE[$CODES[i]] ? $MORSE_CODE[$CODES[i]] : "invalid") + " ] - [ Encoded: " + encode($CODES[i]) + " ]</li>";
                }
                code_sent.innerHTML = output;
                data = "";
@@ -231,8 +193,13 @@ $(document).ready(function() {
 
           //this is for sender only. to check if the encoded data is correct
           function decode(data){
-               var decodedData = $CORRECT_ENCODED_WORD[data]; //temp
-
+               var decodedData = ""; 
+               for(var i = 0; i < data.length;i++){
+                    bit = parseInt(data[i]);
+                    if(!isBase2(i+1)){
+                         decodedData += (""+data[i]);
+                    } 
+               }
                return decodedData;
           }
 
